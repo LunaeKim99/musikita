@@ -11,6 +11,8 @@ import 'package:musikita/features/music_player/presentation/bloc/player_bloc/pla
 import 'package:musikita/features/music_player/presentation/bloc/playlist_bloc/playlist_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/search_bloc/search_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/settings_bloc.dart';
+import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/settings_event.dart';
+import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/settings_state.dart';
 import 'package:musikita/features/music_player/presentation/bloc/song_bloc/song_bloc.dart';
 import 'package:musikita/features/music_player/presentation/pages/edit_cover_page.dart';
 import 'package:musikita/features/music_player/presentation/pages/edit_metadata_page.dart';
@@ -26,6 +28,32 @@ import 'package:musikita/features/music_player/presentation/widgets/app_sidebar.
 import 'package:musikita/features/music_player/presentation/widgets/mini_player_widget.dart';
 
 final GlobalKey<ScaffoldState> mainScaffoldKey = GlobalKey<ScaffoldState>();
+
+ThemeMode _mapToThemeMode(AppThemeMode mode) {
+  switch (mode) {
+    case AppThemeMode.light:
+      return ThemeMode.light;
+    case AppThemeMode.dark:
+      return ThemeMode.dark;
+    case AppThemeMode.amoled:
+      return ThemeMode.dark;
+    case AppThemeMode.system:
+      return ThemeMode.system;
+  }
+}
+
+ThemeData _getDarkTheme(AppThemeMode mode) {
+  switch (mode) {
+    case AppThemeMode.amoled:
+      return AppTheme.amoled();
+    case AppThemeMode.dark:
+      return AppTheme.dark();
+    case AppThemeMode.light:
+      return AppTheme.dark();
+    case AppThemeMode.system:
+      return AppTheme.dark();
+  }
+}
 
 class MusikitaApp extends StatefulWidget {
   const MusikitaApp({super.key});
@@ -87,50 +115,58 @@ class _MusikitaAppState extends State<MusikitaApp> {
           create: (context) => sl<FolderBloc>(),
         ),
         BlocProvider<SettingsBloc>(
-          create: (context) => sl<SettingsBloc>(),
+          create: (context) => sl<SettingsBloc>()..add(LoadSettings()),
         ),
         BlocProvider<SearchBloc>(
           create: (context) => sl<SearchBloc>(),
         ),
       ],
-      child: MaterialApp(
-        title: 'Musikita',
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: ThemeMode.system,
-        debugShowCheckedModeBanner: false,
-        home: _MainPage(
-          selectedIndex: _selectedIndex,
-          onDestinationSelected: _onDestinationSelected,
-          pages: pages,
-          destinations: destinations,
-        ),
-        routes: {
-          '/now-playing': (context) => const NowPlayingPage(),
-          '/search': (context) => const SearchPage(),
-          '/settings': (context) => const SettingsPage(),
-          '/folder-browser': (context) => const FolderPage(),
-        },
-        onGenerateRoute: (settings) {
-          switch (settings.name) {
-            case '/playlist-detail':
-              final playlist = settings.arguments as Playlist;
-              return MaterialPageRoute(
-                builder: (context) => PlaylistDetailPage(playlist: playlist),
-              );
-            case '/edit-metadata':
-              final song = settings.arguments as Song;
-              return MaterialPageRoute(
-                builder: (context) => EditMetadataPage(song: song),
-              );
-            case '/edit-cover':
-              final song = settings.arguments as Song;
-              return MaterialPageRoute(
-                builder: (context) => EditCoverPage(song: song),
-              );
-            default:
-              return null;
-          }
+      child: BlocBuilder<SettingsBloc, SettingsState>(
+        builder: (context, state) {
+          final AppThemeMode themeMode = state is SettingsLoaded
+              ? state.settings.themeMode
+              : AppThemeMode.system;
+
+          return MaterialApp(
+            title: 'Musikita',
+            theme: AppTheme.light(),
+            darkTheme: _getDarkTheme(themeMode),
+            themeMode: _mapToThemeMode(themeMode),
+            debugShowCheckedModeBanner: false,
+            home: _MainPage(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: _onDestinationSelected,
+              pages: pages,
+              destinations: destinations,
+            ),
+            routes: {
+              '/now-playing': (context) => const NowPlayingPage(),
+              '/search': (context) => const SearchPage(),
+              '/settings': (context) => const SettingsPage(),
+              '/folder-browser': (context) => const FolderPage(),
+            },
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case '/playlist-detail':
+                  final playlist = settings.arguments as Playlist;
+                  return MaterialPageRoute(
+                    builder: (context) => PlaylistDetailPage(playlist: playlist),
+                  );
+                case '/edit-metadata':
+                  final song = settings.arguments as Song;
+                  return MaterialPageRoute(
+                    builder: (context) => EditMetadataPage(song: song),
+                  );
+                case '/edit-cover':
+                  final song = settings.arguments as Song;
+                  return MaterialPageRoute(
+                    builder: (context) => EditCoverPage(song: song),
+                  );
+                default:
+                  return null;
+              }
+            },
+          );
         },
       ),
     );

@@ -60,20 +60,60 @@ class AudioScanDataSourceImpl implements AudioScanDataSource {
     final paths = <String>[];
 
     if (Platform.isAndroid) {
-      final storageDir = Directory('/storage/emulated/0');
-      if (await storageDir.exists()) {
-        paths.add(storageDir.path);
+      final storageRoot = Directory('/storage');
+      if (await storageRoot.exists()) {
+        try {
+          await for (final entry in storageRoot.list()) {
+            if (entry is Directory) {
+              if (await entry.exists()) {
+                if (!paths.contains(entry.path)) {
+                  paths.add(entry.path);
+                }
+              }
+            }
+          }
+        } catch (e) {
+          final internalStorage = Directory('/storage/emulated/0');
+          if (await internalStorage.exists()) {
+            if (!paths.contains(internalStorage.path)) {
+              paths.add(internalStorage.path);
+            }
+          }
+        }
       }
 
-      final musicDirs = [
-        Directory('/storage/emulated/0/Music'),
-        Directory('/storage/emulated/0/Download'),
-        Directory('/storage/emulated/0/Recordings'),
+      final mntMediaRw = Directory('/mnt/media_rw');
+      if (await mntMediaRw.exists()) {
+        try {
+          await for (final entry in mntMediaRw.list()) {
+            if (entry is Directory) {
+              if (await entry.exists()) {
+                if (!paths.contains(entry.path)) {
+                  paths.add(entry.path);
+                }
+              }
+            }
+          }
+        } catch (e) {
+          // Ignore access errors
+        }
+      }
+
+      final sdcardPaths = [
+        Directory('/storage/extSdCard'),
+        Directory('/storage/sdcard1'),
+        Directory('/storage/usb0'),
+        Directory('/storage/usb1'),
+        Directory('/mnt/extSdCard'),
+        Directory('/mnt/sdcard'),
+        Directory('/sdcard'),
       ];
 
-      for (final dir in musicDirs) {
-        if (await dir.exists() && !paths.contains(dir.path)) {
-          paths.add(dir.path);
+      for (final dir in sdcardPaths) {
+        if (await dir.exists()) {
+          if (!paths.contains(dir.path)) {
+            paths.add(dir.path);
+          }
         }
       }
     } else if (Platform.isIOS) {
