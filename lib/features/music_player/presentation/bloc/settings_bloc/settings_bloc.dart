@@ -23,13 +23,21 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required this._updateSettings,
     required this._exportData,
     required this._importData,
-  }) : super(SettingsInitial()) {
+   }) : super(SettingsInitial()) {
     on<LoadSettings>(_onLoadSettings);
     on<UpdateThemeMode>(_onUpdateThemeMode);
     on<UpdateEnabledCodecs>(_onUpdateEnabledCodecs);
     on<UpdateCrossfadeDuration>(_onUpdateCrossfadeDuration);
     on<UpdateSleepTimer>(_onUpdateSleepTimer);
     on<UpdateShowLyrics>(_onUpdateShowLyrics);
+    on<UpdateShowHiddenTracks>(_onUpdateShowHiddenTracks);
+    on<UpdateColorScheme>(_onUpdateColorScheme);
+    on<UpdateFontFamily>(_onUpdateFontFamily);
+    on<UpdateCustomPrimaryColor>(_onUpdateCustomPrimaryColor);
+    on<UpdateCustomSecondaryColor>(_onUpdateCustomSecondaryColor);
+    on<UpdateNavbarElevation>(_onUpdateNavbarElevation);
+    on<UpdatePlayerOpacity>(_onUpdatePlayerOpacity);
+    on<ToggleUseMaterialYou>(_onToggleUseMaterialYou);
     on<UpdateVolume>(_onUpdateVolume);
     on<ToggleAutoBackup>(_onToggleAutoBackup);
     on<ExportDataEvent>(_onExportData);
@@ -105,6 +113,114 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     if (state is SettingsLoaded) {
       final current = state as SettingsLoaded;
       final updated = current.settings.copyWith(showLyrics: event.show);
+
+      final result = await _updateSettings(updated);
+      result.fold(
+        (failure) => emit(SettingsError(failure.message)),
+        (_) => emit(SettingsLoaded(updated)),
+      );
+    }
+  }
+
+  Future<void> _onUpdateShowHiddenTracks(UpdateShowHiddenTracks event, Emitter<SettingsState> emit) async {
+    if (state is SettingsLoaded) {
+      final current = state as SettingsLoaded;
+      final updated = current.settings.copyWith(showHiddenTracks: event.show);
+
+      final result = await _updateSettings(updated);
+      result.fold(
+        (failure) => emit(SettingsError(failure.message)),
+        (_) => emit(SettingsLoaded(updated)),
+      );
+    }
+  }
+
+  Future<void> _onUpdateColorScheme(UpdateColorScheme event, Emitter<SettingsState> emit) async {
+    if (state is SettingsLoaded) {
+      final current = state as SettingsLoaded;
+      final updated = current.settings.copyWith(colorScheme: event.colorScheme);
+
+      final result = await _updateSettings(updated);
+      result.fold(
+        (failure) => emit(SettingsError(failure.message)),
+        (_) => emit(SettingsLoaded(updated)),
+      );
+    }
+  }
+
+  Future<void> _onUpdateFontFamily(UpdateFontFamily event, Emitter<SettingsState> emit) async {
+    if (state is SettingsLoaded) {
+      final current = state as SettingsLoaded;
+      final updated = current.settings.copyWith(fontFamily: event.fontFamily);
+
+      final result = await _updateSettings(updated);
+      result.fold(
+        (failure) => emit(SettingsError(failure.message)),
+        (_) => emit(SettingsLoaded(updated)),
+      );
+    }
+  }
+
+  Future<void> _onUpdateCustomPrimaryColor(UpdateCustomPrimaryColor event, Emitter<SettingsState> emit) async {
+    if (state is SettingsLoaded) {
+      final current = state as SettingsLoaded;
+      final updated = current.settings.copyWith(
+        customPrimaryColorValue: event.color?.toARGB32(),
+      );
+
+      final result = await _updateSettings(updated);
+      result.fold(
+        (failure) => emit(SettingsError(failure.message)),
+        (_) => emit(SettingsLoaded(updated)),
+      );
+    }
+  }
+
+  Future<void> _onUpdateCustomSecondaryColor(UpdateCustomSecondaryColor event, Emitter<SettingsState> emit) async {
+    if (state is SettingsLoaded) {
+      final current = state as SettingsLoaded;
+      final updated = current.settings.copyWith(
+        customSecondaryColorValue: event.color?.toARGB32(),
+      );
+
+      final result = await _updateSettings(updated);
+      result.fold(
+        (failure) => emit(SettingsError(failure.message)),
+        (_) => emit(SettingsLoaded(updated)),
+      );
+    }
+  }
+
+  Future<void> _onUpdateNavbarElevation(UpdateNavbarElevation event, Emitter<SettingsState> emit) async {
+    if (state is SettingsLoaded) {
+      final current = state as SettingsLoaded;
+      final updated = current.settings.copyWith(navbarElevation: event.elevation);
+
+      final result = await _updateSettings(updated);
+      result.fold(
+        (failure) => emit(SettingsError(failure.message)),
+        (_) => emit(SettingsLoaded(updated)),
+      );
+    }
+  }
+
+  Future<void> _onUpdatePlayerOpacity(UpdatePlayerOpacity event, Emitter<SettingsState> emit) async {
+    if (state is SettingsLoaded) {
+      final current = state as SettingsLoaded;
+      final updated = current.settings.copyWith(playerOpacity: event.opacity);
+
+      final result = await _updateSettings(updated);
+      result.fold(
+        (failure) => emit(SettingsError(failure.message)),
+        (_) => emit(SettingsLoaded(updated)),
+      );
+    }
+  }
+
+  Future<void> _onToggleUseMaterialYou(ToggleUseMaterialYou event, Emitter<SettingsState> emit) async {
+    if (state is SettingsLoaded) {
+      final current = state as SettingsLoaded;
+      final updated = current.settings.copyWith(useMaterialYou: !current.settings.useMaterialYou);
 
       final result = await _updateSettings(updated);
       result.fold(
@@ -217,6 +333,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     final defaultSettings = AppSettings(
       themeMode: AppThemeMode.system,
+      colorScheme: AppColorScheme.blue,
       enabledCodecs: AppConstants.defaultCodecs,
       crossfadeDuration: 0,
       sleepTimer: SleepTimerDuration.off,
@@ -225,6 +342,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       showLyrics: true,
       volume: 1.0,
       autoBackup: false,
+      showHiddenTracks: false,
+      useMaterialYou: false,
     );
 
     final result = await _updateSettings(defaultSettings);

@@ -26,7 +26,7 @@ class SongBloc extends Bloc<SongEvent, SongState> {
 
   Future<void> _onLoadSongs(LoadSongs event, Emitter<SongState> emit) async {
     emit(SongLoading());
-    final result = await _getSongs();
+    final result = await _getSongs(showHidden: event.showHidden);
     result.fold(
       (failure) => emit(SongError(failure.message)),
       (songs) {
@@ -47,7 +47,7 @@ class SongBloc extends Bloc<SongEvent, SongState> {
       return;
     }
 
-    final result = await _searchSongs(query);
+    final result = await _searchSongs(query, showHidden: event.showHidden);
     result.fold(
       (failure) => emit(SongError(failure.message)),
       (songs) => emit(SearchResultsLoaded(songs, query)),
@@ -68,7 +68,7 @@ class SongBloc extends Bloc<SongEvent, SongState> {
     }
 
     final newSongsCount = result.getOrElse(() => 0);
-    final reloadResult = await _getSongs();
+    final reloadResult = await _getSongs(showHidden: event.showHidden);
     reloadResult.fold(
       (failure) => emit(SongError(failure.message)),
       (songs) {

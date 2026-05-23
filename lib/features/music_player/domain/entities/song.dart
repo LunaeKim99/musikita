@@ -8,7 +8,9 @@ class Song extends Equatable {
   final int duration;
   final String filePath;
   final String? albumArtPath;
+  final String? artistImagePath;
   final DateTime? dateAdded;
+  final bool isHidden;
 
   const Song({
     this.id,
@@ -18,7 +20,9 @@ class Song extends Equatable {
     required this.duration,
     required this.filePath,
     this.albumArtPath,
+    this.artistImagePath,
     this.dateAdded,
+    this.isHidden = false,
   });
 
   Song copyWith({
@@ -29,7 +33,9 @@ class Song extends Equatable {
     int? duration,
     String? filePath,
     String? albumArtPath,
+    String? artistImagePath,
     DateTime? dateAdded,
+    bool? isHidden,
   }) {
     return Song(
       id: id ?? this.id,
@@ -39,7 +45,9 @@ class Song extends Equatable {
       duration: duration ?? this.duration,
       filePath: filePath ?? this.filePath,
       albumArtPath: albumArtPath ?? this.albumArtPath,
+      artistImagePath: artistImagePath ?? this.artistImagePath,
       dateAdded: dateAdded ?? this.dateAdded,
+      isHidden: isHidden ?? this.isHidden,
     );
   }
 
@@ -52,6 +60,8 @@ class Song extends Equatable {
         duration,
         filePath,
         albumArtPath,
+        artistImagePath,
         dateAdded,
+        isHidden,
       ];
 }

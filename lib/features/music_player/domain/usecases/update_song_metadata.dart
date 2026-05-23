@@ -14,6 +14,8 @@ class UpdateSongMetadata {
     String? artist,
     String? album,
     String? albumArtPath,
+    String? artistImagePath,
+    bool? isHidden,
   }) async {
     return _repository.updateSongMetadata(
       song,
@@ -21,6 +23,8 @@ class UpdateSongMetadata {
       artist: artist,
       album: album,
       albumArtPath: albumArtPath,
+      artistImagePath: artistImagePath,
+      isHidden: isHidden,
     );
   }
 }

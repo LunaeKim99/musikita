@@ -2,7 +2,7 @@ class AppConstants {
   static const String appName = 'Musikita';
 
   static const String databaseName = 'musikita.db';
-  static const int databaseVersion = 1;
+  static const int databaseVersion = 2;
 
   static const List<String> supportedCodecs = [
     '.mp3',

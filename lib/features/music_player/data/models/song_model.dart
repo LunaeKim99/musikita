@@ -9,7 +9,9 @@ class SongModel extends Song {
     required super.duration,
     required super.filePath,
     super.albumArtPath,
+    super.artistImagePath,
     super.dateAdded,
+    super.isHidden,
   });
 
   factory SongModel.fromEntity(Song entity) {
@@ -21,7 +23,9 @@ class SongModel extends Song {
       duration: entity.duration,
       filePath: entity.filePath,
       albumArtPath: entity.albumArtPath,
+      artistImagePath: entity.artistImagePath,
       dateAdded: entity.dateAdded,
+      isHidden: entity.isHidden,
     );
   }
 
@@ -34,9 +38,11 @@ class SongModel extends Song {
       duration: map['duration'] as int? ?? 0,
       filePath: map['file_path'] as String? ?? '',
       albumArtPath: map['album_art_path'] as String?,
+      artistImagePath: map['artist_image_path'] as String?,
       dateAdded: map['date_added'] != null
           ? DateTime.parse(map['date_added'] as String)
           : null,
+      isHidden: map['is_hidden'] == 1,
     );
   }
 
@@ -49,7 +55,9 @@ class SongModel extends Song {
       'duration': duration,
       'file_path': filePath,
       'album_art_path': albumArtPath,
+      'artist_image_path': artistImagePath,
       'date_added': dateAdded?.toIso8601String(),
+      'is_hidden': isHidden ? 1 : 0,
     };
   }
 
@@ -62,7 +70,9 @@ class SongModel extends Song {
       duration: duration,
       filePath: filePath,
       albumArtPath: albumArtPath,
+      artistImagePath: artistImagePath,
       dateAdded: dateAdded,
+      isHidden: isHidden,
     );
   }
 }

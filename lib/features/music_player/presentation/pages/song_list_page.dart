@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:musikita/features/music_player/domain/entities/song.dart';
+import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/settings_bloc.dart';
+import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/settings_state.dart';
 import 'package:musikita/features/music_player/presentation/bloc/song_bloc/song_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/song_bloc/song_event.dart';
 import 'package:musikita/features/music_player/presentation/bloc/song_bloc/song_state.dart';
@@ -22,6 +24,14 @@ class _SongListPageState extends State<SongListPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
 
+  bool _getShowHiddenTracks() {
+    final settingsState = context.read<SettingsBloc>().state;
+    if (settingsState is SettingsLoaded) {
+      return settingsState.settings.showHiddenTracks;
+    }
+    return false;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -29,13 +39,13 @@ class _SongListPageState extends State<SongListPage> {
   }
 
   void _loadSongs() {
-    context.read<SongBloc>().add(LoadSongs());
+    context.read<SongBloc>().add(LoadSongs(showHidden: _getShowHiddenTracks()));
   }
 
   Future<void> _scanSongs() async {
     final hasPermission = await PermissionDialog.checkAndRequestStoragePermission(context);
     if (hasPermission && mounted) {
-      context.read<SongBloc>().add(ScanSongsEvent());
+      context.read<SongBloc>().add(ScanSongsEvent(showHidden: _getShowHiddenTracks()));
     }
   }
 
@@ -51,7 +61,7 @@ class _SongListPageState extends State<SongListPage> {
 
   void _onSearchChanged(String query) {
     if (query.length >= 2) {
-      context.read<SongBloc>().add(SearchSongsEvent(query));
+      context.read<SongBloc>().add(SearchSongsEvent(query, showHidden: _getShowHiddenTracks()));
     } else if (query.isEmpty) {
       context.read<SongBloc>().add(ClearSearch());
     }

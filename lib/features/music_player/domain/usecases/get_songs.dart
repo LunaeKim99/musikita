@@ -8,7 +8,7 @@ class GetSongs {
 
   GetSongs(this._repository);
 
-  Future<Either<Failure, List<Song>>> call() async {
-    return _repository.getSongs();
+  Future<Either<Failure, List<Song>>> call({bool showHidden = false}) async {
+    return _repository.getSongs(showHidden: showHidden);
   }
 }

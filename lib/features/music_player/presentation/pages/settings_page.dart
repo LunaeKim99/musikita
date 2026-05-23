@@ -137,6 +137,40 @@ class _SettingsPageState extends State<SettingsPage> {
           },
         ),
         SettingsTile(
+          title: 'Color Scheme',
+          subtitle: _colorSchemeToString(settings.colorScheme),
+          icon: Icons.color_lens,
+          type: SettingsTileType.dropdown,
+          dropdownValue: _colorSchemeToString(settings.colorScheme),
+          dropdownItems: AppColorScheme.values.map(_colorSchemeToString).toList(),
+          onDropdownChanged: (value) {
+            if (value != null) {
+              final colorScheme = _stringToColorScheme(value);
+              context.read<SettingsBloc>().add(UpdateColorScheme(colorScheme));
+            }
+          },
+        ),
+        SettingsTile(
+          title: 'Material You (Dynamic Color)',
+          subtitle: 'Use system colors (Android 12+)',
+          icon: Icons.dynamic_form,
+          type: SettingsTileType.toggle,
+          toggleValue: settings.useMaterialYou,
+          onToggle: (value) {
+            context.read<SettingsBloc>().add(ToggleUseMaterialYou());
+          },
+        ),
+        SettingsTile(
+          title: 'Show Hidden Tracks',
+          subtitle: 'Display songs marked as hidden',
+          icon: Icons.visibility_off,
+          type: SettingsTileType.toggle,
+          toggleValue: settings.showHiddenTracks,
+          onToggle: (value) {
+            context.read<SettingsBloc>().add(UpdateShowHiddenTracks(value));
+          },
+        ),
+        SettingsTile(
           title: 'Show Lyrics',
           subtitle: 'Display synchronized lyrics if available',
           icon: Icons.lyrics,
@@ -144,6 +178,34 @@ class _SettingsPageState extends State<SettingsPage> {
           toggleValue: settings.showLyrics,
           onToggle: (value) {
             context.read<SettingsBloc>().add(UpdateShowLyrics(value));
+          },
+        ),
+        SettingsTile(
+          title: 'Navbar Elevation',
+          subtitle: 'App bar and bottom nav elevation',
+          icon: Icons.bar_chart,
+          type: SettingsTileType.slider,
+          sliderValue: settings.navbarElevation ?? 3.0,
+          minSlider: 0,
+          maxSlider: 20,
+          sliderDivisions: 20,
+          sliderLabel: (settings.navbarElevation ?? 3.0).toStringAsFixed(1),
+          onSliderChanged: (value) {
+            context.read<SettingsBloc>().add(UpdateNavbarElevation(value));
+          },
+        ),
+        SettingsTile(
+          title: 'Player Transparency',
+          subtitle: 'Mini and now playing player opacity',
+          icon: Icons.opacity,
+          type: SettingsTileType.slider,
+          sliderValue: settings.playerOpacity ?? 1.0,
+          minSlider: 0.3,
+          maxSlider: 1.0,
+          sliderDivisions: 7,
+          sliderLabel: '${((settings.playerOpacity ?? 1.0) * 100).round()}%',
+          onSliderChanged: (value) {
+            context.read<SettingsBloc>().add(UpdatePlayerOpacity(value));
           },
         ),
         const Divider(height: 1),
@@ -261,6 +323,10 @@ class _SettingsPageState extends State<SettingsPage> {
         return 'Dark';
       case AppThemeMode.amoled:
         return 'AMOLED Black';
+      case AppThemeMode.dynamicLight:
+        return 'Dynamic Light (Material You)';
+      case AppThemeMode.dynamicDark:
+        return 'Dynamic Dark (Material You)';
     }
   }
 
@@ -272,8 +338,55 @@ class _SettingsPageState extends State<SettingsPage> {
         return AppThemeMode.dark;
       case 'AMOLED Black':
         return AppThemeMode.amoled;
+      case 'Dynamic Light (Material You)':
+        return AppThemeMode.dynamicLight;
+      case 'Dynamic Dark (Material You)':
+        return AppThemeMode.dynamicDark;
       default:
         return AppThemeMode.system;
+    }
+  }
+
+  String _colorSchemeToString(AppColorScheme scheme) {
+    switch (scheme) {
+      case AppColorScheme.blue:
+        return 'Blue';
+      case AppColorScheme.purple:
+        return 'Purple';
+      case AppColorScheme.red:
+        return 'Red';
+      case AppColorScheme.pink:
+        return 'Pink';
+      case AppColorScheme.orange:
+        return 'Orange';
+      case AppColorScheme.green:
+        return 'Green';
+      case AppColorScheme.teal:
+        return 'Teal';
+      case AppColorScheme.cyan:
+        return 'Cyan';
+    }
+  }
+
+  AppColorScheme _stringToColorScheme(String value) {
+    switch (value) {
+      case 'Purple':
+        return AppColorScheme.purple;
+      case 'Red':
+        return AppColorScheme.red;
+      case 'Pink':
+        return AppColorScheme.pink;
+      case 'Orange':
+        return AppColorScheme.orange;
+      case 'Green':
+        return AppColorScheme.green;
+      case 'Teal':
+        return AppColorScheme.teal;
+      case 'Cyan':
+        return AppColorScheme.cyan;
+      case 'Blue':
+      default:
+        return AppColorScheme.blue;
     }
   }
 

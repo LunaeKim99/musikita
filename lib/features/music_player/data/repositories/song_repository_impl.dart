@@ -18,9 +18,9 @@ class SongRepositoryImpl implements SongRepository {
   });
 
   @override
-  Future<Either<Failure, List<Song>>> getSongs() async {
+  Future<Either<Failure, List<Song>>> getSongs({bool showHidden = false}) async {
     try {
-      final songs = await _localDataSource.getAllSongs();
+      final songs = await _localDataSource.getAllSongs(showHidden: showHidden);
       return Right(songs.map((m) => m.toEntity()).toList());
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure(e.message));
@@ -28,9 +28,9 @@ class SongRepositoryImpl implements SongRepository {
   }
 
   @override
-  Future<Either<Failure, List<Song>>> searchSongs(String query) async {
+  Future<Either<Failure, List<Song>>> searchSongs(String query, {bool showHidden = false}) async {
     try {
-      final songs = await _localDataSource.searchSongs(query);
+      final songs = await _localDataSource.searchSongs(query, showHidden: showHidden);
       return Right(songs.map((m) => m.toEntity()).toList());
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure(e.message));
@@ -101,6 +101,8 @@ class SongRepositoryImpl implements SongRepository {
     String? artist,
     String? album,
     String? albumArtPath,
+    String? artistImagePath,
+    bool? isHidden,
   }) async {
     try {
       if (song.id == null) {
@@ -112,6 +114,8 @@ class SongRepositoryImpl implements SongRepository {
         artist: artist ?? song.artist,
         album: album ?? song.album,
         albumArtPath: albumArtPath ?? song.albumArtPath,
+        artistImagePath: artistImagePath ?? song.artistImagePath,
+        isHidden: isHidden ?? song.isHidden,
       ));
 
       await _localDataSource.updateSong(updatedSong);

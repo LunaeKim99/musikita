@@ -12,8 +12,8 @@ abstract class LocalDataSource {
   Future<void> close();
 
   Future<int> insertSong(SongModel song);
-  Future<List<SongModel>> getAllSongs();
-  Future<List<SongModel>> searchSongs(String query);
+  Future<List<SongModel>> getAllSongs({bool showHidden = false});
+  Future<List<SongModel>> searchSongs(String query, {bool showHidden = false});
   Future<SongModel?> getSongById(int id);
   Future<SongModel?> getSongByPath(String path);
   Future<int> updateSong(SongModel song);
@@ -58,7 +58,15 @@ class LocalDataSourceImpl implements LocalDataSource {
       path,
       version: AppConstants.databaseVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE songs ADD COLUMN artist_image_path TEXT');
+      await db.execute('ALTER TABLE songs ADD COLUMN is_hidden INTEGER DEFAULT 0');
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -71,7 +79,9 @@ class LocalDataSourceImpl implements LocalDataSource {
         duration INTEGER DEFAULT 0,
         file_path TEXT UNIQUE NOT NULL,
         album_art_path TEXT,
-        date_added TEXT DEFAULT (datetime('now'))
+        artist_image_path TEXT,
+        date_added TEXT DEFAULT (datetime('now')),
+        is_hidden INTEGER DEFAULT 0
       )
     ''');
 
@@ -160,10 +170,11 @@ class LocalDataSourceImpl implements LocalDataSource {
   }
 
   @override
-  Future<List<SongModel>> getAllSongs() async {
+  Future<List<SongModel>> getAllSongs({bool showHidden = false}) async {
     try {
       final List<Map<String, dynamic>> maps = await _database!.query(
         'songs',
+        where: showHidden ? null : 'is_hidden = 0',
         orderBy: 'title ASC',
       );
       return maps.map(SongModel.fromMap).toList();
@@ -173,12 +184,15 @@ class LocalDataSourceImpl implements LocalDataSource {
   }
 
   @override
-  Future<List<SongModel>> searchSongs(String query) async {
+  Future<List<SongModel>> searchSongs(String query, {bool showHidden = false}) async {
     try {
       final searchQuery = '%$query%';
+      final whereClause = showHidden
+          ? 'title LIKE ? OR artist LIKE ? OR album LIKE ?'
+          : '(title LIKE ? OR artist LIKE ? OR album LIKE ?) AND is_hidden = 0';
       final List<Map<String, dynamic>> maps = await _database!.query(
         'songs',
-        where: 'title LIKE ? OR artist LIKE ? OR album LIKE ?',
+        where: whereClause,
         whereArgs: [searchQuery, searchQuery, searchQuery],
         orderBy: 'title ASC',
       );

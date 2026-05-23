@@ -4,8 +4,8 @@ import 'package:musikita/features/music_player/domain/entities/recent_played.dar
 import 'package:musikita/features/music_player/domain/entities/song.dart';
 
 abstract class SongRepository {
-  Future<Either<Failure, List<Song>>> getSongs();
-  Future<Either<Failure, List<Song>>> searchSongs(String query);
+  Future<Either<Failure, List<Song>>> getSongs({bool showHidden = false});
+  Future<Either<Failure, List<Song>>> searchSongs(String query, {bool showHidden = false});
   Future<Either<Failure, List<RecentPlayed>>> getRecentPlayed({int limit = 50});
   Future<Either<Failure, int>> scanAndSaveSongs();
   Future<Either<Failure, void>> addToRecentPlayed(Song song);
@@ -15,5 +15,7 @@ abstract class SongRepository {
     String? artist,
     String? album,
     String? albumArtPath,
+    String? artistImagePath,
+    bool? isHidden,
   });
 }

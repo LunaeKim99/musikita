@@ -8,20 +8,31 @@ sealed class SongEvent extends Equatable {
 }
 
 class LoadSongs extends SongEvent {
-  const LoadSongs();
+  final bool showHidden;
+
+  const LoadSongs({this.showHidden = false});
+
+  @override
+  List<Object?> get props => [showHidden];
 }
 
 class SearchSongsEvent extends SongEvent {
   final String query;
+  final bool showHidden;
 
-  const SearchSongsEvent(this.query);
+  const SearchSongsEvent(this.query, {this.showHidden = false});
 
   @override
-  List<Object?> get props => [query];
+  List<Object?> get props => [query, showHidden];
 }
 
 class ScanSongsEvent extends SongEvent {
-  const ScanSongsEvent();
+  final bool showHidden;
+
+  const ScanSongsEvent({this.showHidden = false});
+
+  @override
+  List<Object?> get props => [showHidden];
 }
 
 class ClearSearch extends SongEvent {

@@ -8,8 +8,8 @@ class SearchSongs {
 
   SearchSongs(this._repository);
 
-  Future<Either<Failure, List<Song>>> call(String query) async {
+  Future<Either<Failure, List<Song>>> call(String query, {bool showHidden = false}) async {
     if (query.trim().isEmpty) return const Right([]);
-    return _repository.searchSongs(query.trim());
+    return _repository.searchSongs(query.trim(), showHidden: showHidden);
   }
 }
