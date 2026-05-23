@@ -58,20 +58,25 @@ class SongBloc extends Bloc<SongEvent, SongState> {
     emit(ScanningInProgress());
 
     final result = await _scanSongs();
-    result.fold(
+
+    if (result.isLeft()) {
+      result.fold(
+        (failure) => emit(SongError(failure.message)),
+        (_) => null,
+      );
+      return;
+    }
+
+    final newSongsCount = result.getOrElse(() => 0);
+    final reloadResult = await _getSongs();
+    reloadResult.fold(
       (failure) => emit(SongError(failure.message)),
-      (newSongsCount) async {
-        final reloadResult = await _getSongs();
-        reloadResult.fold(
-          (failure) => emit(SongError(failure.message)),
-          (songs) {
-            _cachedSongs = songs;
-            emit(ScanComplete(
-              newSongsCount: newSongsCount,
-              updatedSongs: songs,
-            ));
-          },
-        );
+      (songs) {
+        _cachedSongs = songs;
+        emit(ScanComplete(
+          newSongsCount: newSongsCount,
+          updatedSongs: songs,
+        ));
       },
     );
   }
