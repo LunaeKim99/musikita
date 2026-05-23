@@ -28,11 +28,12 @@ class SearchSongsEvent extends SongEvent {
 
 class ScanSongsEvent extends SongEvent {
   final bool showHidden;
+  final List<String>? paths;
 
-  const ScanSongsEvent({this.showHidden = false});
+  const ScanSongsEvent({this.showHidden = false, this.paths});
 
   @override
-  List<Object?> get props => [showHidden];
+  List<Object?> get props => [showHidden, paths];
 }
 
 class ClearSearch extends SongEvent {

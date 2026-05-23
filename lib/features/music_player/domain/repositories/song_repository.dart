@@ -7,7 +7,7 @@ abstract class SongRepository {
   Future<Either<Failure, List<Song>>> getSongs({bool showHidden = false});
   Future<Either<Failure, List<Song>>> searchSongs(String query, {bool showHidden = false});
   Future<Either<Failure, List<RecentPlayed>>> getRecentPlayed({int limit = 50});
-  Future<Either<Failure, int>> scanAndSaveSongs();
+  Future<Either<Failure, int>> scanAndSaveSongs({List<String>? paths});
   Future<Either<Failure, void>> addToRecentPlayed(Song song);
   Future<Either<Failure, Song>> updateSongMetadata(
     Song song, {
@@ -18,4 +18,5 @@ abstract class SongRepository {
     String? artistImagePath,
     bool? isHidden,
   });
+  Future<Either<Failure, List<String>>> getAvailableStoragePaths();
 }

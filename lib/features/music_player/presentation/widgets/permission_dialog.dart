@@ -8,10 +8,12 @@ class PermissionDialog {
     if (Platform.isAndroid) {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       
+      final sdkInt = androidInfo.version.sdkInt;
+      
       Permission permission;
-      if (androidInfo.version.sdkInt >= 33) {
+      if (sdkInt >= 33) {
         permission = Permission.audio;
-      } else if (androidInfo.version.sdkInt == 30 || androidInfo.version.sdkInt == 31 || androidInfo.version.sdkInt == 32) {
+      } else if (sdkInt == 30 || sdkInt == 31 || sdkInt == 32) {
         permission = Permission.manageExternalStorage;
       } else {
         permission = Permission.storage;
@@ -20,6 +22,28 @@ class PermissionDialog {
       final status = await permission.status;
       
       if (status.isGranted) {
+        if (sdkInt == 30 || sdkInt == 31 || sdkInt == 32) {
+          final manageStatus = await Permission.manageExternalStorage.status;
+          if (!manageStatus.isGranted) {
+            if (context.mounted) {
+              final shouldRequest = await _showPermissionExplanationDialog(context);
+              if (shouldRequest) {
+                final newStatus = await Permission.manageExternalStorage.request();
+                if (newStatus.isGranted) {
+                  return true;
+                } else if (newStatus.isPermanentlyDenied) {
+                  if (context.mounted) {
+                    final shouldOpen = await _showSettingsRedirectDialog(context);
+                    if (shouldOpen) {
+                      await openAppSettings();
+                    }
+                  }
+                }
+              }
+            }
+            return false;
+          }
+        }
         return true;
       }
       
@@ -38,6 +62,10 @@ class PermissionDialog {
         if (shouldRequest) {
           final newStatus = await permission.request();
           if (newStatus.isGranted) {
+            if (sdkInt == 30 || sdkInt == 31 || sdkInt == 32) {
+              final manageStatus = await Permission.manageExternalStorage.request();
+              return manageStatus.isGranted;
+            }
             return true;
           } else if (newStatus.isPermanentlyDenied) {
             if (context.mounted) {

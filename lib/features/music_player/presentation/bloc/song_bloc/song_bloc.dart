@@ -57,7 +57,7 @@ class SongBloc extends Bloc<SongEvent, SongState> {
   Future<void> _onScanSongs(ScanSongsEvent event, Emitter<SongState> emit) async {
     emit(ScanningInProgress());
 
-    final result = await _scanSongs();
+    final result = await _scanSongs(paths: event.paths);
 
     if (result.isLeft()) {
       result.fold(

@@ -60,10 +60,10 @@ class SongRepositoryImpl implements SongRepository {
   }
 
   @override
-  Future<Either<Failure, int>> scanAndSaveSongs() async {
+  Future<Either<Failure, int>> scanAndSaveSongs({List<String>? paths}) async {
     try {
       final existingPaths = await _localDataSource.getAllFilePaths();
-      final scannedSongs = await _audioScanDataSource.scanAudioFiles();
+      final scannedSongs = await _audioScanDataSource.scanAudioFiles(paths: paths);
 
       final newSongs = scannedSongs.where((s) => !existingPaths.contains(s.filePath)).toList();
 
@@ -78,6 +78,18 @@ class SongRepositoryImpl implements SongRepository {
       return Left(StorageFailure(e.message));
     } catch (e) {
       return Left(StorageFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<String>>> getAvailableStoragePaths() async {
+    try {
+      final paths = await _audioScanDataSource.getAvailableStoragePaths();
+      return Right(paths);
+    } on StorageException catch (e) {
+      return Left(StorageFailure(e.message));
+    } catch (e) {
+      return Left(StorageFailure('Failed to get storage paths: $e'));
     }
   }
 

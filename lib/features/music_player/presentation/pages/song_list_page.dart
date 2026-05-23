@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:musikita/core/di/injection_container.dart';
 import 'package:musikita/features/music_player/domain/entities/song.dart';
+import 'package:musikita/features/music_player/domain/usecases/get_available_storage_paths.dart';
 import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/settings_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/settings_state.dart';
 import 'package:musikita/features/music_player/presentation/bloc/song_bloc/song_bloc.dart';
@@ -11,6 +13,7 @@ import 'package:musikita/features/music_player/presentation/bloc/player_bloc/pla
 import 'package:musikita/features/music_player/presentation/widgets/empty_state_widget.dart';
 import 'package:musikita/features/music_player/presentation/widgets/permission_dialog.dart';
 import 'package:musikita/features/music_player/presentation/widgets/song_tile.dart';
+import 'package:musikita/features/music_player/presentation/widgets/storage_selection_dialog.dart';
 import 'package:musikita/app.dart' as app show mainScaffoldKey;
 
 class SongListPage extends StatefulWidget {
@@ -44,8 +47,50 @@ class _SongListPageState extends State<SongListPage> {
 
   Future<void> _scanSongs() async {
     final hasPermission = await PermissionDialog.checkAndRequestStoragePermission(context);
-    if (hasPermission && mounted) {
-      context.read<SongBloc>().add(ScanSongsEvent(showHidden: _getShowHiddenTracks()));
+    if (!hasPermission || !mounted) return;
+
+    final getStoragePaths = sl<GetAvailableStoragePaths>();
+    final storageResult = await getStoragePaths();
+
+    List<String>? selectedPaths;
+
+    storageResult.fold(
+      (failure) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal mendapatkan storage: ${failure.message}')),
+          );
+        }
+      },
+      (paths) async {
+        if (paths.isEmpty) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Tidak ada storage yang ditemukan')),
+            );
+          }
+          return;
+        }
+
+        if (paths.length == 1) {
+          selectedPaths = paths;
+        } else if (mounted) {
+          selectedPaths = await showDialog<List<String>>(
+            context: context,
+            builder: (dialogContext) => StorageSelectionDialog(
+              storagePaths: paths,
+              initiallySelected: paths,
+            ),
+          );
+        }
+      },
+    );
+
+    if (selectedPaths != null && selectedPaths!.isNotEmpty && mounted) {
+      context.read<SongBloc>().add(ScanSongsEvent(
+        showHidden: _getShowHiddenTracks(),
+        paths: selectedPaths,
+      ));
     }
   }
 

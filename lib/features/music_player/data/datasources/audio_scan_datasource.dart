@@ -13,6 +13,7 @@ abstract class AudioScanDataSource {
   });
   Future<SongModel?> extractMetadata(String filePath);
   String? extractLrcPath(String audioFilePath);
+  Future<List<String>> getAvailableStoragePaths();
 }
 
 class AudioScanDataSourceImpl implements AudioScanDataSource {
@@ -60,37 +61,60 @@ class AudioScanDataSourceImpl implements AudioScanDataSource {
     final paths = <String>[];
 
     if (Platform.isAndroid) {
+      final internalStorage = Directory('/storage/emulated/0');
+      if (await internalStorage.exists()) {
+        if (!paths.contains(internalStorage.path)) {
+          paths.add(internalStorage.path);
+        }
+      }
+
       final storageRoot = Directory('/storage');
       if (await storageRoot.exists()) {
         try {
-          await for (final entry in storageRoot.list()) {
+          final entries = await storageRoot.list().toList();
+          for (final entry in entries) {
             if (entry is Directory) {
-              if (await entry.exists()) {
-                if (!paths.contains(entry.path)) {
-                  paths.add(entry.path);
+              final path = entry.path;
+              
+              if (path.contains('emulated') || path.contains('self') || path.contains('legacy')) {
+                continue;
+              }
+              
+              try {
+                final testDir = Directory('$path/');
+                await testDir.list(recursive: false).take(1).toList();
+                
+                if (await entry.exists()) {
+                  if (!paths.contains(path)) {
+                    paths.add(path);
+                  }
                 }
+              } catch (e) {
+                continue;
               }
             }
           }
         } catch (e) {
-          final internalStorage = Directory('/storage/emulated/0');
-          if (await internalStorage.exists()) {
-            if (!paths.contains(internalStorage.path)) {
-              paths.add(internalStorage.path);
-            }
-          }
+          // Ignore errors listing /storage
         }
       }
 
       final mntMediaRw = Directory('/mnt/media_rw');
       if (await mntMediaRw.exists()) {
         try {
-          await for (final entry in mntMediaRw.list()) {
+          final entries = await mntMediaRw.list().toList();
+          for (final entry in entries) {
             if (entry is Directory) {
-              if (await entry.exists()) {
-                if (!paths.contains(entry.path)) {
-                  paths.add(entry.path);
+              try {
+                final path = entry.path;
+                final testDir = Directory('$path/');
+                await testDir.list(recursive: false).take(1).toList();
+                
+                if (!paths.contains(path)) {
+                  paths.add(path);
                 }
+              } catch (e) {
+                continue;
               }
             }
           }
@@ -104,16 +128,26 @@ class AudioScanDataSourceImpl implements AudioScanDataSource {
         Directory('/storage/sdcard1'),
         Directory('/storage/usb0'),
         Directory('/storage/usb1'),
+        Directory('/storage/0000-0000'),
+        Directory('/storage/1111-1111'),
         Directory('/mnt/extSdCard'),
         Directory('/mnt/sdcard'),
         Directory('/sdcard'),
+        Directory('/external_sd'),
+        Directory('/sdcard1'),
+        Directory('/extSdCard'),
       ];
 
       for (final dir in sdcardPaths) {
-        if (await dir.exists()) {
-          if (!paths.contains(dir.path)) {
-            paths.add(dir.path);
+        try {
+          if (await dir.exists()) {
+            await dir.list(recursive: false).take(1).toList();
+            if (!paths.contains(dir.path)) {
+              paths.add(dir.path);
+            }
           }
+        } catch (e) {
+          continue;
         }
       }
     } else if (Platform.isIOS) {
@@ -133,6 +167,11 @@ class AudioScanDataSourceImpl implements AudioScanDataSource {
   Future<String> _getIosDocumentPath() async {
     final docDir = await getApplicationDocumentsDirectory();
     return docDir.path;
+  }
+
+  @override
+  Future<List<String>> getAvailableStoragePaths() async {
+    return _getDefaultSearchPaths();
   }
 
   Future<SongModel?> _extractBasicMetadata(String filePath) async {

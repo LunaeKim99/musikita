@@ -17,6 +17,7 @@ import 'package:musikita/features/music_player/domain/usecases/add_song_to_playl
 import 'package:musikita/features/music_player/domain/usecases/create_playlist.dart';
 import 'package:musikita/features/music_player/domain/usecases/delete_playlist.dart';
 import 'package:musikita/features/music_player/domain/usecases/export_data.dart';
+import 'package:musikita/features/music_player/domain/usecases/get_available_storage_paths.dart';
 import 'package:musikita/features/music_player/domain/usecases/get_folders.dart';
 import 'package:musikita/features/music_player/domain/usecases/get_playlists.dart';
 import 'package:musikita/features/music_player/domain/usecases/get_settings.dart';
@@ -99,6 +100,7 @@ void _initUseCases() {
   sl.registerLazySingleton(() => GetSongs(sl()));
   sl.registerLazySingleton(() => SearchSongs(sl()));
   sl.registerLazySingleton(() => ScanSongs(sl()));
+  sl.registerLazySingleton(() => GetAvailableStoragePaths(sl()));
   sl.registerLazySingleton(() => SaveFavorite(sl()));
   sl.registerLazySingleton(() => RemoveFavorite(sl()));
   sl.registerLazySingleton(() => IsFavorite(sl()));

@@ -2,12 +2,12 @@ import 'package:dartz/dartz.dart';
 import 'package:musikita/core/errors/failures.dart';
 import 'package:musikita/features/music_player/domain/repositories/song_repository.dart';
 
-class ScanSongs {
+class GetAvailableStoragePaths {
   final SongRepository _repository;
 
-  ScanSongs(this._repository);
+  GetAvailableStoragePaths(this._repository);
 
-  Future<Either<Failure, int>> call({List<String>? paths}) async {
-    return _repository.scanAndSaveSongs(paths: paths);
+  Future<Either<Failure, List<String>>> call() async {
+    return _repository.getAvailableStoragePaths();
   }
 }
