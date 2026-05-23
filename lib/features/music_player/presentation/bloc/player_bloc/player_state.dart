@@ -2,18 +2,18 @@ import 'package:equatable/equatable.dart';
 import 'package:musikita/features/music_player/domain/entities/song.dart';
 import 'player_event.dart';
 
-sealed class PlayerState extends Equatable {
-  const PlayerState();
+sealed class MusicPlayerState extends Equatable {
+  const MusicPlayerState();
 
   @override
   List<Object?> get props => [];
 }
 
-class PlayerInitial extends PlayerState {}
+class PlayerInitial extends MusicPlayerState {}
 
-class PlayerLoading extends PlayerState {}
+class PlayerLoading extends MusicPlayerState {}
 
-class PlayerReady extends PlayerState {
+class PlayerReady extends MusicPlayerState {
   final Song? currentSong;
   final List<Song> queue;
   final Duration position;
@@ -100,7 +100,7 @@ class PlayerReady extends PlayerState {
   int get queueLength => queue.length;
 }
 
-class PlayerError extends PlayerState {
+class PlayerError extends MusicPlayerState {
   final String message;
 
   const PlayerError(this.message);

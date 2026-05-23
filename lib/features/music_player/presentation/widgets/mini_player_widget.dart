@@ -16,7 +16,7 @@ class MiniPlayerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PlayerBloc, PlayerState>(
+    return BlocBuilder<PlayerBloc, MusicPlayerState>(
       builder: (context, state) {
         if (state is PlayerReady && state.hasCurrentSong) {
           return _buildMiniPlayer(context, state);

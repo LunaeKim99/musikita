@@ -67,7 +67,7 @@ class _NowPlayingPageState extends State<NowPlayingPage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PlayerBloc, PlayerState>(
+    return BlocBuilder<PlayerBloc, MusicPlayerState>(
       builder: (context, state) {
         if (state is! PlayerReady || !state.hasCurrentSong) {
           return Scaffold(

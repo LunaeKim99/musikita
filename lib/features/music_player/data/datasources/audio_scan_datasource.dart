@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:just_audio/just_audio.dart';
 import 'package:musikita/core/constants/app_constants.dart';
 import 'package:musikita/core/errors/exceptions.dart';
 import 'package:musikita/features/music_player/data/models/song_model.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 abstract class AudioScanDataSource {
   Future<List<SongModel>> scanAudioFiles({
@@ -89,7 +91,8 @@ class AudioScanDataSourceImpl implements AudioScanDataSource {
   }
 
   Future<String> _getIosDocumentPath() async {
-    return '/Documents';
+    final docDir = await getApplicationDocumentsDirectory();
+    return docDir.path;
   }
 
   Future<SongModel?> _extractBasicMetadata(String filePath) async {
@@ -114,13 +117,8 @@ class AudioScanDataSourceImpl implements AudioScanDataSource {
 
       final lrcPath = extractLrcPath(filePath);
       final lrcFile = File(lrcPath);
-      // bool hasLrc = await lrcFile.exists(); // TODO: Gunakan nanti untuk fitur lyrics
 
-      int duration = 0;
-      try {
-        final stat = await file.stat();
-        duration = (stat.size ~/ 10);
-      } catch (_) {}
+      int duration = await _extractDurationWithJustAudio(filePath);
 
       return SongModel(
         title: _cleanTitle(title),
@@ -133,6 +131,19 @@ class AudioScanDataSourceImpl implements AudioScanDataSource {
       );
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<int> _extractDurationWithJustAudio(String filePath) async {
+    final tempPlayer = AudioPlayer();
+    try {
+      await tempPlayer.setFilePath(filePath);
+      final dur = tempPlayer.duration;
+      return dur?.inMilliseconds ?? 0;
+    } catch (_) {
+      return 0;
+    } finally {
+      await tempPlayer.dispose();
     }
   }
 

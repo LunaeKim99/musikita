@@ -1,4 +1,15 @@
+// TODO: Implementasi background playback dengan audio_service
+// Untuk background playback dan media controls di lock screen:
+// 1. Tambahkan audio_service ke pubspec.yaml
+// 2. Buat AudioHandler yang extends BaseAudioHandler
+// 3. Integrasikan just_audio di dalam AudioHandler
+// 4. Daftarkan AudioHandler di main.dart dengan AudioService.init()
+// 5. Update AndroidManifest.xml untuk foreground service
+//
+// Saat ini hanya menggunakan just_audio untuk playback foreground.
+
 import 'dart:async';
+import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:musikita/features/music_player/domain/entities/song.dart';
 
@@ -19,14 +30,8 @@ class AudioPlayerService {
   }
 
   Future<void> _init() async {
-    // TODO: Implement proper audio attributes for Android
-    // The following code is commented out due to API changes in just_audio
-    // await _audioPlayer.setAndroidAudioAttributes(
-    //   const AndroidAudioAttributes(
-    //     contentType: AndroidAudioContentType.music,
-    //     usage: AndroidAudioUsage.media,
-    //   ),
-    // );
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration.music());
   }
 
   Stream<Duration> get positionStream => _audioPlayer.positionStream;

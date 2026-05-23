@@ -37,7 +37,11 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
-  sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
+  sl.registerSingleton<SharedPreferences>(sharedPreferences);
+
+  final localDataSource = LocalDataSourceImpl();
+  await localDataSource.init();
+  sl.registerSingleton<LocalDataSource>(localDataSource);
 
   _initCore();
   _initDataSource();
@@ -49,9 +53,6 @@ Future<void> init() async {
 void _initCore() {}
 
 void _initDataSource() {
-  sl.registerLazySingleton<LocalDataSource>(
-    () => LocalDataSourceImpl(),
-  );
   sl.registerLazySingleton<SettingsDataSource>(
     () => SettingsDataSourceImpl(sl()),
   );

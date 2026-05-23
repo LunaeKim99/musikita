@@ -7,6 +7,7 @@ import 'package:musikita/features/music_player/domain/entities/song.dart';
 import 'package:musikita/features/music_player/presentation/bloc/favorite_bloc/favorite_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/folder_bloc/folder_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_bloc.dart';
+import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_event.dart';
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_state.dart' as ps;
 import 'package:musikita/features/music_player/presentation/bloc/playlist_bloc/playlist_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/search_bloc/search_bloc.dart';
@@ -191,14 +192,14 @@ class _MainPage extends StatelessWidget {
           Expanded(
             child: pages[selectedIndex],
           ),
-          BlocBuilder<PlayerBloc, ps.PlayerState>(
+          BlocBuilder<PlayerBloc, ps.MusicPlayerState>(
             builder: (context, state) {
               bool hasPlayer = false;
               if (state is ps.PlayerReady) {
                 hasPlayer = state.currentSong != null;
               }
               if (hasPlayer) {
-                return _MiniPlayerPlaceholder();
+                return const _MiniPlayerWidget();
               }
               return const SizedBox.shrink();
             },
@@ -214,38 +215,81 @@ class _MainPage extends StatelessWidget {
   }
 }
 
-class _MiniPlayerPlaceholder extends StatelessWidget {
+class _MiniPlayerWidget extends StatelessWidget {
+  const _MiniPlayerWidget();
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 72,
-      color: Theme.of(context).colorScheme.surface,
-      child: ListTile(
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(8),
+    return BlocBuilder<PlayerBloc, ps.MusicPlayerState>(
+      builder: (context, state) {
+        if (state is! ps.PlayerReady) return const SizedBox.shrink();
+
+        final currentSong = state.currentSong;
+        if (currentSong == null) return const SizedBox.shrink();
+
+        final isPlaying = state.isPlaying;
+
+        return Container(
+          width: double.infinity,
+          height: 72,
+          color: Theme.of(context).colorScheme.surface,
+          child: Column(
+            children: [
+              LinearProgressIndicator(
+                value: state.progressPercent,
+                minHeight: 2,
+              ),
+              Expanded(
+                child: ListTile(
+                  leading: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.music_note,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  title: Text(
+                    currentSong.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Text(
+                    currentSong.artist,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          isPlaying ? Icons.pause : Icons.play_arrow,
+                        ),
+                        onPressed: () {
+                          if (isPlaying) {
+                            context.read<PlayerBloc>().add(const PausePlayback());
+                          } else {
+                            context.read<PlayerBloc>().add(const ResumePlayback());
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/now-playing');
+                  },
+                ),
+              ),
+            ],
           ),
-          child: Icon(
-            Icons.music_note,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        title: const Text('Now Playing'),
-        subtitle: const Text('Tap to open player'),
-        trailing: IconButton(
-          icon: const Icon(Icons.play_arrow),
-          onPressed: () {
-            Navigator.pushNamed(context, '/now-playing');
-          },
-        ),
-        onTap: () {
-          Navigator.pushNamed(context, '/now-playing');
-        },
-      ),
+        );
+      },
     );
   }
 }

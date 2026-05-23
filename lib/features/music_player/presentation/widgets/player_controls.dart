@@ -3,7 +3,7 @@ import 'package:musikita/features/music_player/presentation/bloc/player_bloc/pla
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_state.dart';
 
 class PlayerControls extends StatelessWidget {
-  final PlayerState state;
+  final MusicPlayerState state;
   final void Function(PlayerEvent) onEvent;
 
   const PlayerControls({

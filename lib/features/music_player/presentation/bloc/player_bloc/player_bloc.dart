@@ -6,7 +6,7 @@ import 'package:musikita/features/music_player/services/audio_player_service.dar
 import 'player_event.dart';
 import 'player_state.dart';
 
-class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
+class PlayerBloc extends Bloc<PlayerEvent, MusicPlayerState> {
   final AudioPlayerService _audioPlayerService;
 
   StreamSubscription? _positionSubscription;
@@ -91,7 +91,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     });
   }
 
-  Future<void> _onPlaySingleSong(PlaySingleSong event, Emitter<PlayerState> emit) async {
+  Future<void> _onPlaySingleSong(PlaySingleSong event, Emitter<MusicPlayerState> emit) async {
     emit(PlayerLoading());
     try {
       await _audioPlayerService.playSingleSong(event.song);
@@ -109,7 +109,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     }
   }
 
-  Future<void> _onPlayFromQueue(PlayFromQueue event, Emitter<PlayerState> emit) async {
+  Future<void> _onPlayFromQueue(PlayFromQueue event, Emitter<MusicPlayerState> emit) async {
     emit(PlayerLoading());
     try {
       await _audioPlayerService.playFromQueue(
@@ -131,19 +131,19 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     }
   }
 
-  Future<void> _onResumePlayback(ResumePlayback event, Emitter<PlayerState> emit) async {
+  Future<void> _onResumePlayback(ResumePlayback event, Emitter<MusicPlayerState> emit) async {
     if (state is PlayerReady) {
       await _audioPlayerService.play();
     }
   }
 
-  Future<void> _onPausePlayback(PausePlayback event, Emitter<PlayerState> emit) async {
+  Future<void> _onPausePlayback(PausePlayback event, Emitter<MusicPlayerState> emit) async {
     if (state is PlayerReady) {
       await _audioPlayerService.pause();
     }
   }
 
-  Future<void> _onStopPlayback(StopPlayback event, Emitter<PlayerState> emit) async {
+  Future<void> _onStopPlayback(StopPlayback event, Emitter<MusicPlayerState> emit) async {
     if (state is PlayerReady) {
       await _audioPlayerService.stop();
       emit((state as PlayerReady).copyWith(
@@ -153,47 +153,47 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     }
   }
 
-  Future<void> _onNextSong(NextSong event, Emitter<PlayerState> emit) async {
+  Future<void> _onNextSong(NextSong event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.next();
   }
 
-  Future<void> _onPreviousSong(PreviousSong event, Emitter<PlayerState> emit) async {
+  Future<void> _onPreviousSong(PreviousSong event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.previous(allowJumpToStart: event.jumpToStartIfPastThreshold);
   }
 
-  Future<void> _onSeekToPosition(SeekToPosition event, Emitter<PlayerState> emit) async {
+  Future<void> _onSeekToPosition(SeekToPosition event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.seek(event.position);
   }
 
-  Future<void> _onSeekToIndex(SeekToIndex event, Emitter<PlayerState> emit) async {
+  Future<void> _onSeekToIndex(SeekToIndex event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.seekToIndex(event.index, position: event.position ?? Duration.zero);
   }
 
-  Future<void> _onToggleShuffle(ToggleShuffle event, Emitter<PlayerState> emit) async {
+  Future<void> _onToggleShuffle(ToggleShuffle event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.toggleShuffle();
   }
 
-  Future<void> _onSetShuffle(SetShuffle event, Emitter<PlayerState> emit) async {
+  Future<void> _onSetShuffle(SetShuffle event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.setShuffle(event.enabled);
   }
 
-  Future<void> _onCycleRepeatMode(CycleRepeatMode event, Emitter<PlayerState> emit) async {
+  Future<void> _onCycleRepeatMode(CycleRepeatMode event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.cycleRepeatMode();
   }
 
-  Future<void> _onSetRepeatMode(SetRepeatMode event, Emitter<PlayerState> emit) async {
+  Future<void> _onSetRepeatMode(SetRepeatMode event, Emitter<MusicPlayerState> emit) async {
     final serviceMode = _mapToServiceRepeatMode(event.mode);
     await _audioPlayerService.setRepeatMode(serviceMode);
   }
 
-  Future<void> _onSetVolume(SetVolume event, Emitter<PlayerState> emit) async {
+  Future<void> _onSetVolume(SetVolume event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.setVolume(event.volume);
     if (state is PlayerReady) {
       emit((state as PlayerReady).copyWith(volume: event.volume));
     }
   }
 
-  void _onUpdatePlayerPosition(UpdatePlayerPosition event, Emitter<PlayerState> emit) {
+  void _onUpdatePlayerPosition(UpdatePlayerPosition event, Emitter<MusicPlayerState> emit) {
     if (state is PlayerReady) {
       final currentState = state as PlayerReady;
       final currentSong = event.currentIndex != null &&
@@ -212,7 +212,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     }
   }
 
-  Future<void> _onAddSongToQueue(AddSongToQueue event, Emitter<PlayerState> emit) async {
+  Future<void> _onAddSongToQueue(AddSongToQueue event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.addToQueue(event.song);
     if (state is PlayerReady) {
       final currentState = state as PlayerReady;
@@ -221,7 +221,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     }
   }
 
-  Future<void> _onAddSongsToQueue(AddSongsToQueue event, Emitter<PlayerState> emit) async {
+  Future<void> _onAddSongsToQueue(AddSongsToQueue event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.addAllToQueue(event.songs);
     if (state is PlayerReady) {
       final currentState = state as PlayerReady;
@@ -230,7 +230,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     }
   }
 
-  Future<void> _onRemoveSongFromQueue(RemoveSongFromQueue event, Emitter<PlayerState> emit) async {
+  Future<void> _onRemoveSongFromQueue(RemoveSongFromQueue event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.removeFromQueue(event.index);
     if (state is PlayerReady) {
       final currentState = state as PlayerReady;
@@ -241,7 +241,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     }
   }
 
-  Future<void> _onClearQueue(ClearQueue event, Emitter<PlayerState> emit) async {
+  Future<void> _onClearQueue(ClearQueue event, Emitter<MusicPlayerState> emit) async {
     await _audioPlayerService.clearQueue();
     emit(PlayerReady(
       currentSong: null,
@@ -251,13 +251,13 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     ));
   }
 
-  void _onUpdateShuffleMode(UpdateShuffleMode event, Emitter<PlayerState> emit) {
+  void _onUpdateShuffleMode(UpdateShuffleMode event, Emitter<MusicPlayerState> emit) {
     if (state is PlayerReady) {
       emit((state as PlayerReady).copyWith(isShuffled: event.enabled));
     }
   }
 
-  void _onUpdateRepeatMode(UpdateRepeatMode event, Emitter<PlayerState> emit) {
+  void _onUpdateRepeatMode(UpdateRepeatMode event, Emitter<MusicPlayerState> emit) {
     if (state is PlayerReady) {
       emit((state as PlayerReady).copyWith(repeatMode: event.mode));
     }
