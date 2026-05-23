@@ -7,8 +7,6 @@ import 'package:musikita/features/music_player/domain/entities/song.dart';
 import 'package:musikita/features/music_player/presentation/bloc/favorite_bloc/favorite_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/folder_bloc/folder_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_bloc.dart';
-// CHANGED: Hapus alias 'as ps' karena MusicPlayerState sudah unik
-// (tidak konflik lagi dengan PlayerState dari just_audio)
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_state.dart';
 import 'package:musikita/features/music_player/presentation/bloc/playlist_bloc/playlist_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/search_bloc/search_bloc.dart';
@@ -24,8 +22,10 @@ import 'package:musikita/features/music_player/presentation/pages/playlist_page.
 import 'package:musikita/features/music_player/presentation/pages/search_page.dart';
 import 'package:musikita/features/music_player/presentation/pages/settings_page.dart';
 import 'package:musikita/features/music_player/presentation/pages/song_list_page.dart';
-// ADDED: Import MiniPlayerWidget dari file terpisah (lebih lengkap)
+import 'package:musikita/features/music_player/presentation/widgets/app_sidebar.dart';
 import 'package:musikita/features/music_player/presentation/widgets/mini_player_widget.dart';
+
+final GlobalKey<ScaffoldState> mainScaffoldKey = GlobalKey<ScaffoldState>();
 
 class MusikitaApp extends StatefulWidget {
   const MusikitaApp({super.key});
@@ -49,8 +49,6 @@ class _MusikitaAppState extends State<MusikitaApp> {
       const SongListPage(),
       const PlaylistPage(),
       const FavoritePage(),
-      const FolderPage(),
-      const SettingsPage(),
     ];
 
     final destinations = const [
@@ -69,22 +67,9 @@ class _MusikitaAppState extends State<MusikitaApp> {
         selectedIcon: Icon(Icons.favorite),
         label: 'Favorites',
       ),
-      NavigationDestination(
-        icon: Icon(Icons.folder_outlined),
-        selectedIcon: Icon(Icons.folder),
-        label: 'Folders',
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.settings_outlined),
-        selectedIcon: Icon(Icons.settings),
-        label: 'Settings',
-      ),
     ];
 
     return MultiBlocProvider(
-      // CHANGED: Gunakan sl() untuk create BLoC
-      // Semua BLoC sudah didaftarkan di injection_container.dart sebagai registerFactory
-      // Ini memberikan konsistensi dan fleksibilitas akses BLoC dari luar widget tree
       providers: [
         BlocProvider<SongBloc>(
           create: (context) => sl<SongBloc>(),
@@ -123,6 +108,8 @@ class _MusikitaAppState extends State<MusikitaApp> {
         routes: {
           '/now-playing': (context) => const NowPlayingPage(),
           '/search': (context) => const SearchPage(),
+          '/settings': (context) => const SettingsPage(),
+          '/folder-browser': (context) => const FolderPage(),
         },
         onGenerateRoute: (settings) {
           switch (settings.name) {
@@ -166,20 +153,19 @@ class _MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: mainScaffoldKey,
+      drawer: const AppSidebar(),
       body: Column(
         children: [
           Expanded(
             child: pages[selectedIndex],
           ),
-          // CHANGED: Gunakan BlocBuilder dengan MusicPlayerState (tanpa alias)
           BlocBuilder<PlayerBloc, MusicPlayerState>(
             builder: (context, state) {
               bool hasPlayer = false;
               if (state is PlayerReady) {
                 hasPlayer = state.currentSong != null;
               }
-              // CHANGED: Gunakan MiniPlayerWidget dari mini_player_widget.dart
-              // (lebih lengkap: ada tombol prev/next, shadow, styling yang lebih baik)
               if (hasPlayer) {
                 return const MiniPlayerWidget();
               }
@@ -196,6 +182,3 @@ class _MainPage extends StatelessWidget {
     );
   }
 }
-
-// REMOVED: _MiniPlayerWidget duplikat dihapus
-// Sekarang menggunakan MiniPlayerWidget dari mini_player_widget.dart

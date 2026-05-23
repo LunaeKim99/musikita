@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'package:dartz/dartz.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:musikita/core/errors/exceptions.dart';
 import 'package:musikita/core/errors/failures.dart';
 import 'package:musikita/features/music_player/data/datasources/audio_scan_datasource.dart';
@@ -9,7 +7,6 @@ import 'package:musikita/features/music_player/data/models/song_model.dart';
 import 'package:musikita/features/music_player/domain/entities/recent_played.dart';
 import 'package:musikita/features/music_player/domain/entities/song.dart';
 import 'package:musikita/features/music_player/domain/repositories/song_repository.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class SongRepositoryImpl implements SongRepository {
   final LocalDataSource _localDataSource;
@@ -65,25 +62,6 @@ class SongRepositoryImpl implements SongRepository {
   @override
   Future<Either<Failure, int>> scanAndSaveSongs() async {
     try {
-      final status = await Permission.storage.status;
-
-      if (!status.isGranted) {
-        if (Platform.isAndroid) {
-          final androidInfo = await DeviceInfoPlugin().androidInfo;
-          if (androidInfo.version.sdkInt >= 33) {
-            final audioPerm = await Permission.audio.request();
-            if (!audioPerm.isGranted) {
-              return const Left(PermissionFailure('Storage permission not granted'));
-            }
-          } else {
-            final storagePerm = await Permission.storage.request();
-            if (!storagePerm.isGranted) {
-              return const Left(PermissionFailure('Storage permission not granted'));
-            }
-          }
-        }
-      }
-
       final existingPaths = await _localDataSource.getAllFilePaths();
       final scannedSongs = await _audioScanDataSource.scanAudioFiles();
 
@@ -94,8 +72,6 @@ class SongRepositoryImpl implements SongRepository {
       }
 
       return Right(newSongs.length);
-    } on PermissionException catch (e) {
-      return Left(PermissionFailure(e.message));
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure(e.message));
     } on StorageException catch (e) {

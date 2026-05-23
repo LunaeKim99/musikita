@@ -8,6 +8,7 @@ import 'package:musikita/features/music_player/presentation/bloc/player_bloc/pla
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_event.dart';
 import 'package:musikita/features/music_player/presentation/widgets/empty_state_widget.dart';
 import 'package:musikita/features/music_player/presentation/widgets/playlist_tile.dart';
+import 'package:musikita/app.dart' as app show mainScaffoldKey;
 
 class PlaylistPage extends StatefulWidget {
   const PlaylistPage({super.key});
@@ -169,6 +170,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => app.mainScaffoldKey.currentState?.openDrawer(),
+        ),
         title: const Text('Playlists'),
       ),
       floatingActionButton: FloatingActionButton(

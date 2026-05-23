@@ -137,6 +137,7 @@ void _initBlocs() {
   sl.registerFactory<PlayerBloc>(
     () => PlayerBloc(
       audioPlayerService: sl(),
+      songRepository: sl(),
     ),
   );
 

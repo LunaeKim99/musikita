@@ -2,13 +2,15 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 import 'package:musikita/features/music_player/domain/entities/song.dart';
+import 'package:musikita/features/music_player/domain/repositories/song_repository.dart';
 import 'package:musikita/features/music_player/services/audio_player_service.dart';
-import 'player_enums.dart'; // ADDED: Import enum dari file terpisah
+import 'player_enums.dart';
 import 'player_event.dart';
 import 'player_state.dart';
 
 class PlayerBloc extends Bloc<PlayerEvent, MusicPlayerState> {
   final AudioPlayerService _audioPlayerService;
+  final SongRepository _songRepository;
 
   StreamSubscription? _positionSubscription;
   StreamSubscription? _playerStateSubscription;
@@ -16,8 +18,11 @@ class PlayerBloc extends Bloc<PlayerEvent, MusicPlayerState> {
   StreamSubscription? _shuffleSubscription;
   StreamSubscription? _loopModeSubscription;
 
+  int? _lastAddedToRecentId;
+
   PlayerBloc({
     required this._audioPlayerService,
+    required this._songRepository,
   }) : super(PlayerInitial()) {
     on<PlaySingleSong>(_onPlaySingleSong);
     on<PlayFromQueue>(_onPlayFromQueue);
@@ -95,6 +100,7 @@ class PlayerBloc extends Bloc<PlayerEvent, MusicPlayerState> {
     emit(PlayerLoading());
     try {
       await _audioPlayerService.playSingleSong(event.song);
+      _addToRecentPlayed(event.song);
       emit(PlayerReady(
         currentSong: event.song,
         queue: [event.song],
@@ -117,6 +123,9 @@ class PlayerBloc extends Bloc<PlayerEvent, MusicPlayerState> {
         initialIndex: event.initialIndex,
       );
       final initialSong = event.songs.isNotEmpty ? event.songs[event.initialIndex] : null;
+      if (initialSong != null) {
+        _addToRecentPlayed(initialSong);
+      }
       emit(PlayerReady(
         currentSong: initialSong,
         queue: event.songs,
@@ -128,6 +137,13 @@ class PlayerBloc extends Bloc<PlayerEvent, MusicPlayerState> {
       ));
     } catch (e) {
       emit(PlayerError(e.toString()));
+    }
+  }
+
+  void _addToRecentPlayed(Song song) {
+    if (song.id != null && song.id != _lastAddedToRecentId) {
+      _lastAddedToRecentId = song.id;
+      _songRepository.addToRecentPlayed(song);
     }
   }
 
@@ -201,6 +217,10 @@ class PlayerBloc extends Bloc<PlayerEvent, MusicPlayerState> {
               event.currentIndex! < currentState.queue.length
           ? currentState.queue[event.currentIndex!]
           : currentState.currentSong;
+
+      if (currentSong != null && currentSong != currentState.currentSong) {
+        _addToRecentPlayed(currentSong);
+      }
 
       emit(currentState.copyWith(
         position: event.position,

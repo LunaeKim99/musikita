@@ -8,6 +8,7 @@ import 'package:musikita/features/music_player/presentation/bloc/player_bloc/pla
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_event.dart';
 import 'package:musikita/features/music_player/presentation/widgets/empty_state_widget.dart';
 import 'package:musikita/features/music_player/presentation/widgets/song_tile.dart';
+import 'package:musikita/app.dart' as app show mainScaffoldKey;
 
 class FavoritePage extends StatefulWidget {
   const FavoritePage({super.key});
@@ -50,6 +51,10 @@ class _FavoritePageState extends State<FavoritePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => app.mainScaffoldKey.currentState?.openDrawer(),
+        ),
         title: const Text('Favorites'),
         actions: [
           BlocBuilder<FavoriteBloc, FavoriteState>(

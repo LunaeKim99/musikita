@@ -7,7 +7,9 @@ import 'package:musikita/features/music_player/presentation/bloc/song_bloc/song_
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_event.dart';
 import 'package:musikita/features/music_player/presentation/widgets/empty_state_widget.dart';
+import 'package:musikita/features/music_player/presentation/widgets/permission_dialog.dart';
 import 'package:musikita/features/music_player/presentation/widgets/song_tile.dart';
+import 'package:musikita/app.dart' as app show mainScaffoldKey;
 
 class SongListPage extends StatefulWidget {
   const SongListPage({super.key});
@@ -30,8 +32,11 @@ class _SongListPageState extends State<SongListPage> {
     context.read<SongBloc>().add(LoadSongs());
   }
 
-  void _scanSongs() {
-    context.read<SongBloc>().add(ScanSongsEvent());
+  Future<void> _scanSongs() async {
+    final hasPermission = await PermissionDialog.checkAndRequestStoragePermission(context);
+    if (hasPermission && mounted) {
+      context.read<SongBloc>().add(ScanSongsEvent());
+    }
   }
 
   void _toggleSearch() {
@@ -74,6 +79,10 @@ class _SongListPageState extends State<SongListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => app.mainScaffoldKey.currentState?.openDrawer(),
+        ),
         title: _isSearching
             ? TextField(
                 controller: _searchController,
