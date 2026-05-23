@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:musikita/features/music_player/domain/entities/song.dart';
+import 'player_enums.dart'; // CHANGED: Import enum dari file terpisah
 
 sealed class PlayerEvent extends Equatable {
   const PlayerEvent();
@@ -175,17 +176,4 @@ class UpdateRepeatMode extends PlayerEvent {
   List<Object?> get props => [mode];
 }
 
-enum PlayerStateType {
-  idle,
-  loading,
-  playing,
-  paused,
-  completed,
-  stopped,
-}
-
-enum RepeatModeState {
-  off,
-  one,
-  all,
-}
+// REMOVED: enum PlayerStateType dan RepeatModeState dipindahkan ke player_enums.dart

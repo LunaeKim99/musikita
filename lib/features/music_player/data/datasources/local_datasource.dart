@@ -6,7 +6,6 @@ import 'package:musikita/core/errors/exceptions.dart';
 import 'package:musikita/features/music_player/data/models/playlist_model.dart';
 import 'package:musikita/features/music_player/data/models/recent_played_model.dart';
 import 'package:musikita/features/music_player/data/models/song_model.dart';
-import 'package:musikita/features/music_player/domain/entities/song.dart';
 
 abstract class LocalDataSource {
   Future<void> init();

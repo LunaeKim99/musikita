@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:musikita/features/music_player/domain/entities/folder.dart';
 import 'package:musikita/features/music_player/domain/entities/song.dart';
 import 'package:musikita/features/music_player/presentation/bloc/folder_bloc/folder_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/folder_bloc/folder_event.dart';

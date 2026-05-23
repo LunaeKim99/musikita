@@ -173,8 +173,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createPlaylist,
-        child: const Icon(Icons.add),
         tooltip: 'Create Playlist',
+        child: const Icon(Icons.add),
       ),
       body: BlocListener<PlaylistBloc, PlaylistState>(
         listener: (context, state) {

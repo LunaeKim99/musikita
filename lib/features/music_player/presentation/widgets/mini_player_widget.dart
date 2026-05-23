@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:musikita/core/utils/extensions.dart';
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_event.dart';
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_state.dart';
-import 'seek_bar.dart';
 
 class MiniPlayerWidget extends StatelessWidget {
   final VoidCallback? onTap;

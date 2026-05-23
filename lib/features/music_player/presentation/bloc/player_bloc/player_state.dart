@@ -1,7 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:musikita/features/music_player/domain/entities/song.dart';
-import 'player_event.dart';
+import 'player_enums.dart'; // CHANGED: Import enum dari player_enums.dart, bukan player_event.dart
 
+// CHANGED: Sealed class utama tetap MusicPlayerState (sudah di-rename sebelumnya)
+// Ini menghindari konflik dengan PlayerState dari just_audio
 sealed class MusicPlayerState extends Equatable {
   const MusicPlayerState();
 

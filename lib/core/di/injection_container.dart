@@ -31,6 +31,14 @@ import 'package:musikita/features/music_player/domain/usecases/search_songs.dart
 import 'package:musikita/features/music_player/domain/usecases/toggle_favorite.dart';
 import 'package:musikita/features/music_player/domain/usecases/update_settings.dart';
 import 'package:musikita/features/music_player/domain/usecases/update_song_metadata.dart';
+// ADDED: Import semua BLoC untuk didaftarkan ke GetIt
+import 'package:musikita/features/music_player/presentation/bloc/favorite_bloc/favorite_bloc.dart';
+import 'package:musikita/features/music_player/presentation/bloc/folder_bloc/folder_bloc.dart';
+import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_bloc.dart';
+import 'package:musikita/features/music_player/presentation/bloc/playlist_bloc/playlist_bloc.dart';
+import 'package:musikita/features/music_player/presentation/bloc/search_bloc/search_bloc.dart';
+import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/settings_bloc.dart';
+import 'package:musikita/features/music_player/presentation/bloc/song_bloc/song_bloc.dart';
 import 'package:musikita/features/music_player/services/audio_player_service.dart';
 
 final sl = GetIt.instance;
@@ -48,6 +56,8 @@ Future<void> init() async {
   _initRepositories();
   _initUseCases();
   _initServices();
+  // ADDED: Panggil _initBlocs() untuk mendaftarkan semua BLoC
+  _initBlocs();
 }
 
 void _initCore() {}
@@ -108,4 +118,71 @@ void _initUseCases() {
 
 void _initServices() {
   sl.registerSingleton<AudioPlayerService>(AudioPlayerService());
+}
+
+// ADDED: Fungsi baru untuk mendaftarkan semua BLoC
+// Menggunakan registerFactory agar setiap BlocProvider mendapatkan instance baru
+// dan lifecycle-nya dikelola oleh BlocProvider (close() dipanggil otomatis)
+void _initBlocs() {
+  // SongBloc
+  sl.registerFactory<SongBloc>(
+    () => SongBloc(
+      getSongs: sl(),
+      searchSongs: sl(),
+      scanSongs: sl(),
+    ),
+  );
+
+  // PlayerBloc
+  sl.registerFactory<PlayerBloc>(
+    () => PlayerBloc(
+      audioPlayerService: sl(),
+    ),
+  );
+
+  // PlaylistBloc
+  sl.registerFactory<PlaylistBloc>(
+    () => PlaylistBloc(
+      getPlaylists: sl(),
+      createPlaylist: sl(),
+      deletePlaylist: sl(),
+      addSongToPlaylist: sl(),
+      playlistRepository: sl(),
+    ),
+  );
+
+  // FavoriteBloc
+  sl.registerFactory<FavoriteBloc>(
+    () => FavoriteBloc(
+      favoriteRepository: sl(),
+      toggleFavorite: sl(),
+      saveFavorite: sl(),
+      removeFavorite: sl(),
+      isFavorite: sl(),
+    ),
+  );
+
+  // FolderBloc
+  sl.registerFactory<FolderBloc>(
+    () => FolderBloc(
+      getFolders: sl(),
+    ),
+  );
+
+  // SettingsBloc
+  sl.registerFactory<SettingsBloc>(
+    () => SettingsBloc(
+      getSettings: sl(),
+      updateSettings: sl(),
+      exportData: sl(),
+      importData: sl(),
+    ),
+  );
+
+  // SearchBloc
+  sl.registerFactory<SearchBloc>(
+    () => SearchBloc(
+      searchSongs: sl(),
+    ),
+  );
 }

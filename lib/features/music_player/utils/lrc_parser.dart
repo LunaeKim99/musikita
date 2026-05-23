@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:musikita/core/constants/app_constants.dart';
 
 class LyricLine {
   final Duration time;

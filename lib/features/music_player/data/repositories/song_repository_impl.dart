@@ -16,10 +16,9 @@ class SongRepositoryImpl implements SongRepository {
   final AudioScanDataSource _audioScanDataSource;
 
   SongRepositoryImpl({
-    required LocalDataSource localDataSource,
-    required AudioScanDataSource audioScanDataSource,
-  })  : _localDataSource = localDataSource,
-        _audioScanDataSource = audioScanDataSource;
+    required this._localDataSource,
+    required this._audioScanDataSource,
+  });
 
   @override
   Future<Either<Failure, List<Song>>> getSongs() async {

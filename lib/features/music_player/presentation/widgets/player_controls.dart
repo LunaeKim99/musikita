@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_enums.dart'; // ADDED: Import enum
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_event.dart';
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_state.dart';
 
@@ -88,24 +89,22 @@ class PlayerControls extends StatelessWidget {
     );
   }
 
+  // CHANGED: Gunakan switch expression untuk inisialisasi yang aman
   Widget _buildRepeatButton(BuildContext context, RepeatModeState mode) {
-    IconData icon;
-    Color? color;
-
-    switch (mode) {
-      case RepeatModeState.off:
-        icon = Icons.repeat;
-        color = Theme.of(context).colorScheme.onSurfaceVariant;
-        break;
-      case RepeatModeState.all:
-        icon = Icons.repeat;
-        color = Theme.of(context).colorScheme.primary;
-        break;
-      case RepeatModeState.one:
-        icon = Icons.repeat_one;
-        color = Theme.of(context).colorScheme.primary;
-        break;
-    }
+    final (icon, color) = switch (mode) {
+      RepeatModeState.off => (
+          Icons.repeat,
+          Theme.of(context).colorScheme.onSurfaceVariant
+        ),
+      RepeatModeState.all => (
+          Icons.repeat,
+          Theme.of(context).colorScheme.primary
+        ),
+      RepeatModeState.one => (
+          Icons.repeat_one,
+          Theme.of(context).colorScheme.primary
+        ),
+    };
 
     return IconButton(
       icon: Icon(icon, color: color),

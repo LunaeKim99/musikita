@@ -67,12 +67,10 @@ class _FavoritePageState extends State<FavoritePage> {
                     ),
                   ],
                   onSelected: (value) {
-                    if (state is FavoritesLoaded) {
-                      if (value == 'play') {
-                        _playAll(state.songs);
-                      } else if (value == 'shuffle') {
-                        _shufflePlay(state.songs);
-                      }
+                    if (value == 'play') {
+                      _playAll(state.songs);
+                    } else if (value == 'shuffle') {
+                      _shufflePlay(state.songs);
                     }
                   },
                 );

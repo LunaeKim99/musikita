@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:musikita/core/constants/app_constants.dart';
 import 'package:musikita/core/errors/exceptions.dart';
 import 'package:musikita/features/music_player/data/models/app_settings_model.dart';
 

@@ -9,9 +9,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final SearchSongs _searchSongs;
 
   SearchBloc({
-    required SearchSongs searchSongs,
-  })  : _searchSongs = searchSongs,
-        super(SearchInitial()) {
+    required this._searchSongs,
+  }) : super(SearchInitial()) {
     on<SearchQueryChanged>(_onSearchQueryChanged);
     on<SearchSubmitted>(_onSearchSubmitted);
     on<ClearSearch>(_onClearSearch);

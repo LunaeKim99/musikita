@@ -8,9 +8,8 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
   final GetFolders _getFolders;
 
   FolderBloc({
-    required GetFolders getFolders,
-  })  : _getFolders = getFolders,
-        super(FolderInitial()) {
+    required this._getFolders,
+  }) : super(FolderInitial()) {
     on<LoadRootFolders>(_onLoadRootFolders);
     on<NavigateToFolder>(_onNavigateToFolder);
     on<NavigateUp>(_onNavigateUp);

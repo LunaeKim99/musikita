@@ -9,7 +9,6 @@ import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/s
 import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/settings_state.dart';
 import 'package:musikita/features/music_player/presentation/widgets/settings_tile.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});

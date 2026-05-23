@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:musikita/features/music_player/domain/entities/playlist.dart';
-import 'package:musikita/features/music_player/domain/entities/song.dart';
 import 'package:musikita/features/music_player/domain/repositories/playlist_repository.dart';
 import 'package:musikita/features/music_player/domain/usecases/add_song_to_playlist.dart';
 import 'package:musikita/features/music_player/domain/usecases/create_playlist.dart';
@@ -24,12 +23,11 @@ class PlaylistBloc extends Bloc<ev.PlaylistEvent, PlaylistState> {
     required CreatePlaylist createPlaylist,
     required DeletePlaylist deletePlaylist,
     required AddSongToPlaylist addSongToPlaylist,
-    required PlaylistRepository playlistRepository,
+    required this._playlistRepository,
   })  : _getPlaylistsUC = getPlaylists,
         _createPlaylistUC = createPlaylist,
         _deletePlaylistUC = deletePlaylist,
         _addSongToPlaylistUC = addSongToPlaylist,
-        _playlistRepository = playlistRepository,
         super(PlaylistInitial()) {
     on<ev.LoadPlaylists>(_onLoadPlaylists);
     on<ev.CreatePlaylist>(_onCreatePlaylist);

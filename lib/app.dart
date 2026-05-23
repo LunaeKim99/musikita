@@ -7,8 +7,9 @@ import 'package:musikita/features/music_player/domain/entities/song.dart';
 import 'package:musikita/features/music_player/presentation/bloc/favorite_bloc/favorite_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/folder_bloc/folder_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_bloc.dart';
-import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_event.dart';
-import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_state.dart' as ps;
+// CHANGED: Hapus alias 'as ps' karena MusicPlayerState sudah unik
+// (tidak konflik lagi dengan PlayerState dari just_audio)
+import 'package:musikita/features/music_player/presentation/bloc/player_bloc/player_state.dart';
 import 'package:musikita/features/music_player/presentation/bloc/playlist_bloc/playlist_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/search_bloc/search_bloc.dart';
 import 'package:musikita/features/music_player/presentation/bloc/settings_bloc/settings_bloc.dart';
@@ -23,6 +24,8 @@ import 'package:musikita/features/music_player/presentation/pages/playlist_page.
 import 'package:musikita/features/music_player/presentation/pages/search_page.dart';
 import 'package:musikita/features/music_player/presentation/pages/settings_page.dart';
 import 'package:musikita/features/music_player/presentation/pages/song_list_page.dart';
+// ADDED: Import MiniPlayerWidget dari file terpisah (lebih lengkap)
+import 'package:musikita/features/music_player/presentation/widgets/mini_player_widget.dart';
 
 class MusikitaApp extends StatefulWidget {
   const MusikitaApp({super.key});
@@ -79,54 +82,30 @@ class _MusikitaAppState extends State<MusikitaApp> {
     ];
 
     return MultiBlocProvider(
+      // CHANGED: Gunakan sl() untuk create BLoC
+      // Semua BLoC sudah didaftarkan di injection_container.dart sebagai registerFactory
+      // Ini memberikan konsistensi dan fleksibilitas akses BLoC dari luar widget tree
       providers: [
         BlocProvider<SongBloc>(
-          create: (context) => SongBloc(
-            getSongs: sl(),
-            searchSongs: sl(),
-            scanSongs: sl(),
-          ),
+          create: (context) => sl<SongBloc>(),
         ),
         BlocProvider<PlayerBloc>(
-          create: (context) => PlayerBloc(
-            audioPlayerService: sl(),
-          ),
+          create: (context) => sl<PlayerBloc>(),
         ),
         BlocProvider<PlaylistBloc>(
-          create: (context) => PlaylistBloc(
-            getPlaylists: sl(),
-            createPlaylist: sl(),
-            deletePlaylist: sl(),
-            addSongToPlaylist: sl(),
-            playlistRepository: sl(),
-          ),
+          create: (context) => sl<PlaylistBloc>(),
         ),
         BlocProvider<FavoriteBloc>(
-          create: (context) => FavoriteBloc(
-            favoriteRepository: sl(),
-            toggleFavorite: sl(),
-            saveFavorite: sl(),
-            removeFavorite: sl(),
-            isFavorite: sl(),
-          ),
+          create: (context) => sl<FavoriteBloc>(),
         ),
         BlocProvider<FolderBloc>(
-          create: (context) => FolderBloc(
-            getFolders: sl(),
-          ),
+          create: (context) => sl<FolderBloc>(),
         ),
         BlocProvider<SettingsBloc>(
-          create: (context) => SettingsBloc(
-            getSettings: sl(),
-            updateSettings: sl(),
-            exportData: sl(),
-            importData: sl(),
-          ),
+          create: (context) => sl<SettingsBloc>(),
         ),
         BlocProvider<SearchBloc>(
-          create: (context) => SearchBloc(
-            searchSongs: sl(),
-          ),
+          create: (context) => sl<SearchBloc>(),
         ),
       ],
       child: MaterialApp(
@@ -192,14 +171,17 @@ class _MainPage extends StatelessWidget {
           Expanded(
             child: pages[selectedIndex],
           ),
-          BlocBuilder<PlayerBloc, ps.MusicPlayerState>(
+          // CHANGED: Gunakan BlocBuilder dengan MusicPlayerState (tanpa alias)
+          BlocBuilder<PlayerBloc, MusicPlayerState>(
             builder: (context, state) {
               bool hasPlayer = false;
-              if (state is ps.PlayerReady) {
+              if (state is PlayerReady) {
                 hasPlayer = state.currentSong != null;
               }
+              // CHANGED: Gunakan MiniPlayerWidget dari mini_player_widget.dart
+              // (lebih lengkap: ada tombol prev/next, shadow, styling yang lebih baik)
               if (hasPlayer) {
-                return const _MiniPlayerWidget();
+                return const MiniPlayerWidget();
               }
               return const SizedBox.shrink();
             },
@@ -215,81 +197,5 @@ class _MainPage extends StatelessWidget {
   }
 }
 
-class _MiniPlayerWidget extends StatelessWidget {
-  const _MiniPlayerWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<PlayerBloc, ps.MusicPlayerState>(
-      builder: (context, state) {
-        if (state is! ps.PlayerReady) return const SizedBox.shrink();
-
-        final currentSong = state.currentSong;
-        if (currentSong == null) return const SizedBox.shrink();
-
-        final isPlaying = state.isPlaying;
-
-        return Container(
-          width: double.infinity,
-          height: 72,
-          color: Theme.of(context).colorScheme.surface,
-          child: Column(
-            children: [
-              LinearProgressIndicator(
-                value: state.progressPercent,
-                minHeight: 2,
-              ),
-              Expanded(
-                child: ListTile(
-                  leading: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.music_note,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  title: Text(
-                    currentSong.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  subtitle: Text(
-                    currentSong.artist,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          isPlaying ? Icons.pause : Icons.play_arrow,
-                        ),
-                        onPressed: () {
-                          if (isPlaying) {
-                            context.read<PlayerBloc>().add(const PausePlayback());
-                          } else {
-                            context.read<PlayerBloc>().add(const ResumePlayback());
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                  onTap: () {
-                    Navigator.pushNamed(context, '/now-playing');
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
+// REMOVED: _MiniPlayerWidget duplikat dihapus
+// Sekarang menggunakan MiniPlayerWidget dari mini_player_widget.dart

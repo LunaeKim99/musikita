@@ -1,5 +1,4 @@
 import 'package:musikita/features/music_player/domain/entities/playlist.dart';
-import 'package:musikita/features/music_player/domain/entities/song.dart';
 
 class PlaylistModel extends Playlist {
   const PlaylistModel({

@@ -14,13 +14,10 @@ class SongBloc extends Bloc<SongEvent, SongState> {
   List<Song> _cachedSongs = [];
 
   SongBloc({
-    required GetSongs getSongs,
-    required SearchSongs searchSongs,
-    required ScanSongs scanSongs,
-  })  : _getSongs = getSongs,
-        _searchSongs = searchSongs,
-        _scanSongs = scanSongs,
-        super(SongInitial()) {
+    required this._getSongs,
+    required this._searchSongs,
+    required this._scanSongs,
+  }) : super(SongInitial()) {
     on<LoadSongs>(_onLoadSongs);
     on<SearchSongsEvent>(_onSearchSongs);
     on<ScanSongsEvent>(_onScanSongs);

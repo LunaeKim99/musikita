@@ -19,17 +19,12 @@ class FavoriteBloc extends Bloc<ev.FavoriteEvent, FavoriteState> {
   Set<int> _cachedIds = {};
 
   FavoriteBloc({
-    required FavoriteRepository favoriteRepository,
-    required ToggleFavorite toggleFavorite,
-    required SaveFavorite saveFavorite,
-    required RemoveFavorite removeFavorite,
-    required IsFavorite isFavorite,
-  })  : _favoriteRepository = favoriteRepository,
-        _toggleFavorite = toggleFavorite,
-        _saveFavorite = saveFavorite,
-        _removeFavorite = removeFavorite,
-        _isFavorite = isFavorite,
-        super(FavoriteInitial()) {
+    required this._favoriteRepository,
+    required this._toggleFavorite,
+    required this._saveFavorite,
+    required this._removeFavorite,
+    required this._isFavorite,
+  }) : super(FavoriteInitial()) {
     on<ev.LoadFavorites>(_onLoadFavorites);
     on<ev.ToggleFavorite>(_onToggleFavorite);
     on<ev.AddFavorite>(_onAddFavorite);

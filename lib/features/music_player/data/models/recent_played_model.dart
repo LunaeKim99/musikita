@@ -1,5 +1,4 @@
 import 'package:musikita/features/music_player/domain/entities/recent_played.dart';
-import 'package:musikita/features/music_player/domain/entities/song.dart';
 
 class RecentPlayedModel extends RecentPlayed {
   const RecentPlayedModel({

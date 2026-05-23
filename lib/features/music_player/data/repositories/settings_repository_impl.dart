@@ -4,9 +4,6 @@ import 'package:musikita/core/errors/failures.dart';
 import 'package:musikita/features/music_player/data/datasources/local_datasource.dart';
 import 'package:musikita/features/music_player/data/datasources/settings_datasource.dart';
 import 'package:musikita/features/music_player/data/models/app_settings_model.dart';
-import 'package:musikita/features/music_player/data/models/playlist_model.dart';
-import 'package:musikita/features/music_player/data/models/recent_played_model.dart';
-import 'package:musikita/features/music_player/data/models/song_model.dart';
 import 'package:musikita/features/music_player/domain/entities/app_settings.dart';
 import 'package:musikita/features/music_player/domain/repositories/settings_repository.dart';
 import 'package:musikita/features/music_player/utils/export_import_helper.dart';
@@ -16,10 +13,9 @@ class SettingsRepositoryImpl implements SettingsRepository {
   final LocalDataSource _localDataSource;
 
   SettingsRepositoryImpl({
-    required SettingsDataSource settingsDataSource,
-    required LocalDataSource localDataSource,
-  })  : _settingsDataSource = settingsDataSource,
-        _localDataSource = localDataSource;
+    required this._settingsDataSource,
+    required this._localDataSource,
+  });
 
   @override
   Future<Either<Failure, AppSettings>> getSettings() async {

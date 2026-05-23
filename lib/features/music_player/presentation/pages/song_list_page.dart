@@ -99,8 +99,8 @@ class _SongListPageState extends State<SongListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _scanSongs,
-        child: const Icon(Icons.folder_open),
         tooltip: 'Scan Music',
+        child: const Icon(Icons.folder_open),
       ),
       body: BlocBuilder<SongBloc, SongState>(
         builder: (context, state) {

@@ -115,8 +115,8 @@ class AudioScanDataSourceImpl implements AudioScanDataSource {
         }
       }
 
-      final lrcPath = extractLrcPath(filePath);
-      final lrcFile = File(lrcPath);
+      // REMOVED: lrcPath dan lrcFile tidak digunakan di scan awal
+      // LRC akan dicek di NowPlayingPage saat dibutuhkan
 
       int duration = await _extractDurationWithJustAudio(filePath);
 

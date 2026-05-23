@@ -9,7 +9,6 @@ import 'package:musikita/features/music_player/domain/usecases/get_settings.dart
 import 'package:musikita/features/music_player/domain/usecases/import_data.dart';
 import 'package:musikita/features/music_player/domain/usecases/update_settings.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'settings_event.dart';
 import 'settings_state.dart';
 
@@ -20,15 +19,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final ImportData _importData;
 
   SettingsBloc({
-    required GetSettings getSettings,
-    required UpdateSettings updateSettings,
-    required ExportData exportData,
-    required ImportData importData,
-  })  : _getSettings = getSettings,
-        _updateSettings = updateSettings,
-        _exportData = exportData,
-        _importData = importData,
-        super(SettingsInitial()) {
+    required this._getSettings,
+    required this._updateSettings,
+    required this._exportData,
+    required this._importData,
+  }) : super(SettingsInitial()) {
     on<LoadSettings>(_onLoadSettings);
     on<UpdateThemeMode>(_onUpdateThemeMode);
     on<UpdateEnabledCodecs>(_onUpdateEnabledCodecs);

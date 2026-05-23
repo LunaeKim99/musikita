@@ -3,6 +3,7 @@ import 'package:bloc/bloc.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 import 'package:musikita/features/music_player/domain/entities/song.dart';
 import 'package:musikita/features/music_player/services/audio_player_service.dart';
+import 'player_enums.dart'; // ADDED: Import enum dari file terpisah
 import 'player_event.dart';
 import 'player_state.dart';
 
@@ -16,9 +17,8 @@ class PlayerBloc extends Bloc<PlayerEvent, MusicPlayerState> {
   StreamSubscription? _loopModeSubscription;
 
   PlayerBloc({
-    required AudioPlayerService audioPlayerService,
-  })  : _audioPlayerService = audioPlayerService,
-        super(PlayerInitial()) {
+    required this._audioPlayerService,
+  }) : super(PlayerInitial()) {
     on<PlaySingleSong>(_onPlaySingleSong);
     on<PlayFromQueue>(_onPlayFromQueue);
     on<ResumePlayback>(_onResumePlayback);
